@@ -96,24 +96,35 @@ namespace BotServer
                 string decodedData = System.Text.Encoding.ASCII.GetString(decodedMsg);
 
                 Console.WriteLine("Message recieved from client: " + decodedData);
+                string userInput = decodedData.ToLower();
 
-                switch (decodedData.ToLower())
+                switch (userInput)
                 {
                     case "start quiz" :
-                        BotServer.Quiz.loadJson();
                         response = "  Choose category:" + Environment.NewLine + "a) Science" + Environment.NewLine +
                                    "b) Sports" + Environment.NewLine + "c) GK";
                         break;
 
                     case "science" :
+                    case "gk" :
+                    case "sports" :
+                        Quiz.loadJson(userInput + ".js");
+                        Quiz._newQuiz = true;
+                        response = Quiz.GetQuestion(Quiz._question_no++);
                         break;
+
                     case "a" :
                     case "b" :
                     case "c" :
                     case "d" :
+                        response = Quiz.ValidateAnswer(userInput);
+                        break;
 
+                    case "end" :
+                        response = Quiz.ShowResult();
+                        break;
 
-                    default: response = "  Invalid request"; 
+                    default: response = "  Sorry I could not understand."; 
                         break;
                 }
 
@@ -124,6 +135,7 @@ namespace BotServer
                 Console.WriteLine("sending: " + response);
             }
 
+            //socket.Send(data);
             socket.BeginSend(data, 0, data.Length, SocketFlags.None, new AsyncCallback(SendCallback), socket);
             socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(ReceiveCallBack), socket);
         }

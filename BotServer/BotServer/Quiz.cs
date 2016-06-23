@@ -22,15 +22,66 @@ namespace BotServer
 
     class Quiz
     {
-        public static void loadJson()
+        internal static bool _newQuiz = false;
+        internal static int _question_no = 0;
+        internal static int _score = 0;
+
+        internal static List<Question> _qList = new List<Question>();
+
+        //load json data into list
+        public static void loadJson(string filePath)
         {
-            using (StreamReader r = new StreamReader("gk.js"))
+            string topic = "../../quizDB/" + filePath;
+            _newQuiz = false;
+
+            using (StreamReader r = new StreamReader(topic))
             {
                 string source = r.ReadToEnd();
+                Console.WriteLine("read from file: " + source);
                 DataContractJsonSerializer js = new DataContractJsonSerializer(typeof(List<Question>));
                 MemoryStream memStream = new MemoryStream(Encoding.UTF8.GetBytes(source));
-                Question q = (Question)js.ReadObject(memStream);
+                _qList = (List<Question>)js.ReadObject(memStream);
             }
+        }
+
+        //extract question from list
+        public static string GetQuestion(int qIndex)
+        {
+            if (_qList.Count > qIndex)
+            {
+                string questionString = _qList[qIndex].question;
+                string options = "a. " + " " + _qList[qIndex].options[0] + 
+                    "b. " + " " + _qList[qIndex].options[1] +
+                    "c. " + " " + _qList[qIndex].options[2] + 
+                    "d. " + " " + _qList[qIndex].options[3];
+                return "  Question: \n" + questionString + "Options:" +
+                    options +  "Choose the correct option: Ex: a, b, etc";
+            }
+            else
+            {
+                _question_no = 0;
+                _newQuiz = false;
+                return "  End of Quiz! Generating report..";
+            }
+        }
+
+        internal static string ShowResult()
+        {
+            return "  " + _score.ToString();
+        }
+
+        internal static string ValidateAnswer(string userChoice)
+        {
+            //todo: set timer
+            //todo: record answer of user and store in DB?
+
+            if (userChoice == _qList[_question_no].answer)
+            {
+                _score++;
+                return "  Great going!";
+            }
+            else
+                return "  Sorry wrong answer";
         }
     }
 }
