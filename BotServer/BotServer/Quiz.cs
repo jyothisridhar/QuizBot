@@ -37,7 +37,6 @@ namespace BotServer
             using (StreamReader r = new StreamReader(topic))
             {
                 string source = r.ReadToEnd();
-                Console.WriteLine("read from file: " + source);
                 DataContractJsonSerializer js = new DataContractJsonSerializer(typeof(List<Question>));
                 MemoryStream memStream = new MemoryStream(Encoding.UTF8.GetBytes(source));
                 _qList = (List<Question>)js.ReadObject(memStream);
@@ -54,20 +53,20 @@ namespace BotServer
                     "b. " + " " + _qList[qIndex].options[1] +
                     "c. " + " " + _qList[qIndex].options[2] + 
                     "d. " + " " + _qList[qIndex].options[3];
-                return "  Question: \n" + questionString + "Options:" +
-                    options +  "Choose the correct option: Ex: a, b, etc";
+                return "Question: \n" + questionString + "Options:" +
+                    options;
             }
             else
             {
                 _question_no = 0;
                 _newQuiz = false;
-                return "  End of Quiz! Generating report..";
+                return "End of Quiz! Generating report..";
             }
         }
 
         internal static string ShowResult()
         {
-            return "  " + _score.ToString();
+            return _score.ToString();
         }
 
         internal static string ValidateAnswer(string userChoice)
@@ -78,7 +77,7 @@ namespace BotServer
             if (userChoice == _qList[_question_no].answer)
             {
                 _score++;
-                return "  Great going!";
+                return " Great going!";
             }
             else
                 return "  Sorry wrong answer";
